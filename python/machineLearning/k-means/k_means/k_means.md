@@ -1,4 +1,47 @@
+# K-Means 聚类
 
+聚类属于无监督学习的一种。聚类和分类是不同的，分类是已知有哪些类别，需要将数据划分到这些类别中去；聚类是不知道有哪些类别，由算法将数据划分成指定的类别数。
+
+聚类算法有很多，其中很基础的就是 K-Means（K 均值）聚类算法
+
+**K-Means 的基本步骤：**
+
+- 随机初始化聚类中心
+- 每个样本计算到各个聚类中心的距离，每个样本和自身距离最近的聚类中心归为一类
+- 对划分的每一类重新计算聚类中心
+- 重复二、三步直至聚类中心不变
+
+
+
+**初始化方法**
+
+基础的 K-Means 初始化聚类中心是随机的，也就是说，从所有样本点中随机取 k 个样本点（假如希望聚k类）作为聚类中心。这样，初始的聚类中心可以保证一定在数据集的范围之内。
+
+K-Means 是对初始的聚类中心很敏感的，随机选择出来的点可能相互之间距离会非常近，这样第一次聚类的效果就会不太好。针对这一问题，有人提出了 kmeans++ 方法进行初始化，这一方法可以使初始化的聚类中心相互之间尽可能离得远一些，提高聚类的效果。但 kmeans++ 不在本文讨论的范畴。
+
+
+
+**距离计算**
+
+假设有三个数据点：$(x_1, y_1)$, $(x_2, y_2)$, $(x_3, y_3)$；两个聚类中心：$(a_1, b_1)$, $(a_2, b_2)$
+
+那么计算第一个数据点到第一个聚类中心距离的式子就是 $distance = \sqrt{(x_1-a_1)^2+(y_1-b_1)^2}$
+
+以此类推。
+
+
+
+**聚类中心更新**
+
+假设第一类有两个数据点：$(x_1, y_1)$, $(x_2, y_2)$
+
+那么计算第一类中新的聚类中心 x 坐标的式子就是$x=\frac{x_1+x_2}{2}$
+
+
+
+**下面用构建一个简单数据集来演示聚类过程**
+
+首先随机构造一个可以被分为两类的数据集
 
 ```python
 # 构建数据集
@@ -28,10 +71,14 @@ plt.scatter([x[0] for x in X], [x[1] for x in X], c="b", s=10)
 
 
 
+构建好了数据集，接下来**先用现成的工具包看一下聚类的效果**
+
+sklearn.cluster 封装的是聚类算法，其中自然包括 K-Means 算法。通过现成的封装代码看一下聚类的效果，有一个直观的感受。
+
 ```python
 # 使用 sklearn.cluster 工具完成聚类  ##
 from sklearn.cluster import KMeans
-kmeans = KMeans(n_clusters=2, init="k-means++")
+kmeans = KMeans(n_clusters=2, init="k-means++")  # "random" 表示随机初始化聚类中心，"k-means++" 是改进过的初始化方法
 result = kmeans.fit_predict(X)  # 训练聚类模型并完成聚类
 centers = kmeans.cluster_centers_  # 类别中心点（有的出处称其为质心）
 
@@ -54,6 +101,8 @@ plt.scatter([x[0] for x in centers], [x[1] for x in centers], c=colors, marker="
 ![png](output_1_1.png)
 
 
+
+接下来，就**根据 K-Means 的原理，动手实现一下算法**
 
 ```python
 ## 根据聚类原理实现聚类算法  ##
@@ -102,7 +151,7 @@ plt.scatter([x[0] for x in centers], [x[1] for x in centers], c=colors, marker="
 ```
 
     End at iteration: 3
-    
+
 
 
 
@@ -115,6 +164,8 @@ plt.scatter([x[0] for x in centers], [x[1] for x in centers], c=colors, marker="
 ![png](output_3_2.png)
 
 
+
+上面的代码只展示了最后结果，下面是把**每一次迭代后的效果都展示出来**，可以清晰地看到聚类的整个过程。
 
 ```python
 # 代码二
@@ -169,12 +220,14 @@ for i in range(max_iteration):
 ```
 
     End at iteration: 4
-    
+
 
 
 ![png](output_4_1.png)
 
 
+
+上面代码使用的初始化方法都是随机地在数据集中选取两个点作为聚类中心，下面的代码演示的是在一定范围内选取两个随机点作为聚类中心，也就是说聚类中心不在数据集当中产生。自然，这种方法的效果是没有上面的好的，但不妨尝试一下。
 
 ```python
 # 代码三
@@ -228,8 +281,11 @@ for i in range(max_iteration):
 ```
 
     End at iteration: 4
-    
+
 
 
 ![png](output_5_1.png)
 
+
+
+以上是关于基本 K-Means 算法的全部内容，代码已上传至 [GitHub](<https://github.com/NICE-FUTURE/WorkSpace/blob/master/python/machineLearning/k-means/k_means.ipynb>)
