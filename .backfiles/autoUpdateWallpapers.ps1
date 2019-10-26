@@ -1,0 +1,1 @@
+python E:\WorkSpace\.backfiles\autoUpdateWallpapers.py
